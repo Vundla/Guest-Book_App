@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Guestbook</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <h1>Welcome to the Guestbook</h1>
+  <form id="guestbook-form">
+    <input type="text" name="name" placeholder="Your name" required />
+    <textarea name="message" placeholder="Your message" required></textarea>
+    <button type="submit">Submit</button>
+  </form>
+  <ul id="messages"></ul>
+
+  <script>
+    async function fetchMessages() {
+      const res = await fetch('/api/messages');
+      const messages = await res.json();
+      const list = document.getElementById('messages');
+      list.innerHTML = '';
+      messages.forEach(msg => {
+        const li = document.createElement('li');
+        li.textContent = `${msg.name}: ${msg.message}`;
+        list.appendChild(li);
+      });
+    }
+
+    document.getElementById('guestbook-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const name = e.target.name.value;
+      const message = e.target.message.value;
+      await fetch('/api/messages', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, message })
+      });
+      e.target.reset();
+      fetchMessages();
+    });
+
+    fetchMessages();
+  </script>
+</body>
+</html>
